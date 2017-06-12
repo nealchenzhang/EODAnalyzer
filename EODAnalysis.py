@@ -4,6 +4,8 @@ Created on Wed May 03 10:27:42 2017
 
 @author: Neal Chen Zhang
 """
+from __future__ import print_function
+from __future__ import division
 
 import sys
 import os
@@ -11,10 +13,10 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import matplotlib.pyplot as plt
-import matplotlib
+import matplotlib as mpl
 
-zhfont_kai = matplotlib.font_manager.FontProperties(fname='C:\Windows\Fonts\simkai.ttf')
-zhfont_song = matplotlib.font_manager.FontProperties(fname='C:\Windows\Fonts\simsun.ttc')
+# zhfont_kai = matplotlib.font_manager.FontProperties(fname='C:\Windows\Fonts\simkai.ttf')
+# zhfont_song = matplotlib.font_manager.FontProperties(fname='C:\Windows\Fonts\simsun.ttc')
 
 #plt.title('楷体',fontproperties=zhfont_kai)
 #plt.xlabel('$\lambda$')
@@ -89,25 +91,45 @@ class EOD_Analysis(object):
         Beging_Bal = []
         Cash_Movement = []
         Ending_Bal = []
+        Margin = []
+        Margin2Equity = []
+        Realized_GL = []
         for i in self.filelist:
             df_settlementfile = pd.read_excel(i, u'客户交易结算日报', header=None)
             tmp = self.fetch_table(df_settlementfile, u'期货期权账户资金状况')
             Beging_Bal.append(tmp.loc[u'上日结存'].iloc[1])
             Cash_Movement.append(tmp.loc[u'当日存取合计'].iloc[1])
             Ending_Bal.append(tmp.loc[u'上日结存'].iloc[6])
+            Realized_GL.append(tmp.loc[u'平仓盈亏'].iloc[1])
+            Margin.append(tmp.loc[u'当日结存'].iloc[6])
+            Margin2Equity.append(float(tmp.iloc[7,6][:tmp.iloc[7,6].find('%')]))
             Bal_index.append(dt.datetime(*map(int, i.split('.')[0].split('_')[1].split('-'))))
         
         df_Balance = pd.DataFrame({'Beginning Balance': Beging_Bal, 
                                    'Cash Movement': Cash_Movement, 
-                                   'Ending Balance': Ending_Bal})
+                                   'Ending Balance': Ending_Bal,
+                                   'Margin': Margin,
+                                   'Margin to Equity': Margin2Equity,
+                                   'Realized G/L': Realized_GL})
         df_Balance.index = Bal_index
+#        
+#        plt.figure()
+#        ax1 = plt.subplot(2,1,1)
+#        ax1.plot(df_Balance.index, df_Balance.loc[:,'Ending Balance'])
+#        ax1.set_title('Ending Balance')
+#        ax2 = plt.subplot(2,1,2, sharex=ax1)
+#        ax2.bar(df_Balance.index, df_Balance.loc[:, 'Margin'])
+#        ax2.set_title('Margin')
+#        plt.xlabel('Date')
+#        plt.title('Margin to Equity')
         return df_Balance
+        
 
     def Trading_Orders(self, date_start, date_end):
         files_dates = [str(i.split('.')[0].split('_')[1]) for i in self.filelist]
+        df_TradingOrders = pd.DataFrame()
         if date_start and date_end in files_dates:
             tradingfiles = self.filelist[files_dates.index(date_start):files_dates.index(date_end)+1]
-            df_TradingOrders = pd.DataFrame()
             for i in tradingfiles:
                 df_tradingfile = pd.read_excel(i, u'成交明细', header=None)
                 tmp = self.fetch_table(df_tradingfile, u'成交明细')
@@ -124,18 +146,6 @@ class EOD_Analysis(object):
 
 if __name__ == '__main__':
 #    filepath = r'C:\\Users\\Aian Fund\\Desktop\\王亚民'
-    filepath = r'C:\\Users\\Aian Fund\\Desktop\\保证金监控中心'
-    x = EOD_Analysis(filepath, u'九泰')
-
-#    x = EOD_Analysis(filepath, u'王亚民')
-    ##
-#    tmp = x.Trading_Orders(date_start=x.start_date, date_end=x.end_date)
-#    n = tmp.loc[:,[u'实际成交日期', u'成交时间', u'买/卖', u'平仓盈亏']]
-#    tmp.loc['PP1709'].groupby(u'成交时间').sum().loc[:,[u'手数',u'平仓盈亏', u'买/卖']]
-#    tmp.replace(u'--', np.nan).sum()
-#    
-#    
-#    pp = tmp.loc['PP1709'].copy()
-#    pp = pp.set_index([u'实际成交日期', u'成交时间'], drop=True)
-#    pp.loc[:,u'买/卖']=pp.loc[:,u'买/卖'].replace(u' 卖', -1)
-#    pp.loc[:,u'买/卖']=pp.loc[:,u'买/卖'].replace(u'买', 1)
+    filepath = r'C:\\Users\\Aian Fund\\Desktop\\御澜保证金监控中心'
+#    filepath = '/media/nealcz/Data/Neal/EODAnalyzer/御澜保证金监控中心'
+    x = EOD_Analysis(filepath, u'御澜')
