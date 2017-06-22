@@ -44,7 +44,7 @@ class Sector(object):
                 2: Iron Ore and Steel
                 3: Steel and Hot Rolled
         Output:
-            return dict of underlying assets and pairs number
+            return dict of underlying assets and normal pairs number
         '''
         
         pairs_Coal = dict(zip(self.Coal_Pairs, self.Coal_number))
