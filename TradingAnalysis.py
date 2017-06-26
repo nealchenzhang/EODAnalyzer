@@ -59,18 +59,17 @@ class Trading_Analysis(Tradings):
         contract_orders = list(set(self.Trading_Orders.index))
         return contract_orders
     
-    def backtest_trading(self, contract_asset, time_period='one minute'):
+    def tradings(self, contract_asset):
         '''
         This function is used to analyze the orders and trading results for one contract;
         
         Input:
             contract_asset: contract # e.g., i or I, rb or RB 
             
-            
         Output:
+            df_tradings: normalized pandas dataframe of tradings for specific asset
             
         '''
-        ####contract 提取交易手续费计算表格 历史行情数据对接等
         contract = []
         contract_asset = contract_asset.upper()
         contract_orders = self.get_contract_asset_list()
@@ -84,13 +83,28 @@ class Trading_Analysis(Tradings):
                     contract.append(str(i))
         print(contract)
         print(self.get_contract_asset_list())
-#        for i in contract:
-#            df_tradings = self.analysis(self.Trading_Orders.loc[i,:])
-#            # 画图 连接数据库部分
-#            df_tradings = df_tradings.reset_index()
-#            df_tradings['Timestamp'] = df_tradings['Timestamp'].apply(lambda i: dt.datetime.strftime(i, "%Y-%m-%d %H:%M:00"))
-#            return df_tradings
+
+        for i in contract:
+            df_tradings = self.Trading_Orders.loc[i,:]
+        ### 有些期货公司此处实际成交日期有误 待修改
+        df_tradings['Timestamp'] = df_tradings.loc[:, '实际成交日期'] + \
+                   'T'+  df_tradings.loc[:, '成交时间'] + '.000Z'
+        df_tradings = df_tradings.reset_index()
+        df_tradings.loc[:, 'Timestamp'] = (df_tradings.loc[:, 'Timestamp'].apply(pd.to_datetime)).values
         
+        df_tradings.loc[:,u'买/卖'] = df_tradings.loc[:,u'买/卖'].replace(u'买', 1)
+        df_tradings.loc[:,u'买/卖'] = df_tradings.loc[:,u'买/卖'].replace(u' 卖', -1)
+        
+        df_tradings.loc[:,u'开/平'] = df_tradings.loc[:,u'开/平'].replace(u'开', 1)
+        df_tradings.loc[:,u'开/平'] = df_tradings.loc[:,u'开/平'].replace(u' 平', -1)
+
+        return df_tradings
+    
+    def win_rate(self, df_tradings):
+        df_tradings = df_tradings.sort_values(by='Timestamp')
+        win_number = df_tradings.where((df_tradings.loc[:, '开/平']==-1) & (df_tradings.loc[:, '平仓盈亏']>0)).dropna(how='all').loc[:, '手数'].sum()
+        close_number = df_tradings.where(df_tradings.loc[:, '开/平']==-1).dropna(how='all').loc[:, '手数'].sum()
+        return win_number/close_number
 
 if __name__ == '__main__':
     filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
