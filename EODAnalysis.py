@@ -134,32 +134,39 @@ class Positions(EOD_Analysis):
 if __name__ == '__main__':
  #   filepath = r'C:\\Users\\Aian Fund\\Desktop\\御澜保证金监控中心\\.xls'.format('2017-04')
 #    filepath = '/media/nealcz/Data/Neal/EODAnalyzer/御澜保证金监控中心'
-    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
-    x = EOD_Analysis(filepath)
-    x = Balance(filepath)
-    x = Tradings(filepath)
-    x = Positions(filepath)
-#    df_Balance = pd.DataFrame()
-#    Bal_index = []
-#    Beging_Bal = []
-#    Cash_Movement = []
-#    Ending_Bal = []
-#    Margin = []
-#    Margin2Equity = []
-#    Realized_GL = []
-#    for i in #filelist:
-#        Beging_Bal.append(a.Beging_Bal)
-#        Cash_Movement.append(a.Cash_Movement)
-#        Ending_Bal.append(a.Ending_Bal)
-#        Realized_GL.append(tmp.loc[u'平仓盈亏'].iloc[1])
-#        Margin.append(tmp.loc[u'当日结存'].iloc[6])
-#        Margin2Equity.append(float(tmp.iloc[7,6][:tmp.iloc[7,6].find('%')]))
-#        Bal_index.append(dt.datetime(*map(int, i.split('.')[0].split('_')[1].split('-'))))
-#    
-#    df_Balance = pd.DataFrame({'Beginning Balance': Beging_Bal, 
-#                               'Cash Movement': Cash_Movement, 
-#                               'Ending Balance': Ending_Bal,
-#                               'Margin': Margin,
-#                               'Margin to Equity': Margin2Equity,
-#                               'Realized G/L': Realized_GL})
-#    df_Balance.index = Bal_index
+#    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
+    
+    filepath = 'C:\\Users\\Aian Fund\\Desktop\\杨老师5-25至6-9结算账单(1)\\5-25至6-9结算账单'
+    os.chdir(filepath)
+    os.listdir(filepath)
+#    x = EOD_Analysis(filepath)
+#    x = Balance(filepath)
+#    x = Tradings(filepath)
+#    x = Positions(filepath)
+    
+    ###
+    df_Balance = pd.DataFrame()
+    Bal_index = []
+    Beging_Bal = []
+    Cash_Movement = []
+    Ending_Bal = []
+    Margin = []
+    Margin2Equity = []
+    Realized_GL = []
+    for i in os.listdir(filepath):
+        a = Balance(filepath+'\\'+i)
+        Beging_Bal.append(a.Beging_Bal)
+        Cash_Movement.append(a.Cash_Movement)
+        Ending_Bal.append(a.Ending_Bal)
+        Realized_GL.append(a.Realized_GL)
+        Margin.append(a.Margin)
+        Margin2Equity.append(a.Margin2Equity)
+        Bal_index.append(a.Date)
+    
+    df_Balance = pd.DataFrame({'Beginning Balance': Beging_Bal, 
+                               'Cash Movement': Cash_Movement, 
+                               'Ending Balance': Ending_Bal,
+                               'Margin': Margin,
+                               'Margin to Equity': Margin2Equity,
+                               'Realized G/L': Realized_GL})
+    df_Balance.index = Bal_index

@@ -19,6 +19,7 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
+import os
 
 
 from EODAnalysis import Tradings
@@ -74,6 +75,7 @@ class Trading_Analysis(Tradings):
         contract_asset = contract_asset.upper()
         contract_orders = self.get_contract_asset_list()
         contract_list = self.get_contract_asset()
+        df_tradings = pd.DataFrame()
         if not contract_asset in contract_list:
             print('{} contract is not traded. \
                   \nPlease re-enter the contract.'.format(contract_asset))
@@ -81,22 +83,22 @@ class Trading_Analysis(Tradings):
             for i in contract_orders:
                 if i.rstrip(self.number) == contract_asset:
                     contract.append(str(i))
-        print(contract)
-        print(self.get_contract_asset_list())
-
-        for i in contract:
-            df_tradings = self.Trading_Orders.loc[i,:]
-        ### 有些期货公司此处实际成交日期有误 待修改
-        df_tradings['Timestamp'] = df_tradings.loc[:, '实际成交日期'] + \
-                   'T'+  df_tradings.loc[:, '成交时间'] + '.000Z'
-        df_tradings = df_tradings.reset_index()
-        df_tradings.loc[:, 'Timestamp'] = (df_tradings.loc[:, 'Timestamp'].apply(pd.to_datetime)).values
-        
-        df_tradings.loc[:,u'买/卖'] = df_tradings.loc[:,u'买/卖'].replace(u'买', 1)
-        df_tradings.loc[:,u'买/卖'] = df_tradings.loc[:,u'买/卖'].replace(u' 卖', -1)
-        
-        df_tradings.loc[:,u'开/平'] = df_tradings.loc[:,u'开/平'].replace(u'开', 1)
-        df_tradings.loc[:,u'开/平'] = df_tradings.loc[:,u'开/平'].replace(u' 平', -1)
+#            print(contract)
+#            print(self.get_contract_asset_list())
+                
+            for i in contract:
+                df_tradings = self.Trading_Orders.loc[i,:]
+            ### 有些期货公司此处实际成交日期有误 待修改
+            df_tradings['Timestamp'] = df_tradings.loc[:, '实际成交日期'] + \
+                       'T'+  df_tradings.loc[:, '成交时间'] + '.000Z'
+            df_tradings = df_tradings.reset_index()
+            df_tradings.loc[:, 'Timestamp'] = (df_tradings.loc[:, 'Timestamp'].apply(pd.to_datetime)).values
+            
+            df_tradings.loc[:,u'买/卖'] = df_tradings.loc[:,u'买/卖'].replace(u'买', 1)
+            df_tradings.loc[:,u'买/卖'] = df_tradings.loc[:,u'买/卖'].replace(u' 卖', -1)
+            
+            df_tradings.loc[:,u'开/平'] = df_tradings.loc[:,u'开/平'].replace(u'开', 1)
+            df_tradings.loc[:,u'开/平'] = df_tradings.loc[:,u'开/平'].replace(u' 平', -1)
 
         return df_tradings
     
@@ -107,5 +109,26 @@ class Trading_Analysis(Tradings):
         return win_number/close_number
 
 if __name__ == '__main__':
-    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
-    x = Trading_Analysis(filepath)
+#    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
+#    x = Trading_Analysis(filepath)
+    
+    # filepath 为文件夹路径
+    filepath = 'C:\\Users\\Aian Fund\\Desktop\\杨老师5-25至6-9结算账单(1)\\5-25至6-9结算账单'
+    os.chdir(filepath)
+    filelist = os.listdir(filepath)
+    trading_contract = []
+    for i in filelist:
+        a = Trading_Analysis(filepath+'\\'+i)
+        trading_contract.extend(a.get_contract_asset_list())
+    
+    trading_analysis = {}
+    for i in list(set(trading_contract)):
+        trading = pd.DataFrame()
+        for j in filelist:
+            tmp = pd.DataFrame()
+            a = Trading_Analysis(filepath+'\\'+j)
+            print(j)
+            tmp = a.tradings(i.rstrip(a.number))
+            trading = trading.append(tmp)
+        trading.to_excel('{}.xlsx'.format(i))
+#        trading_analysis = trading_analysis.update(contract= i, win_rate=a.win_rate(trading))
