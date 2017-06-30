@@ -110,7 +110,10 @@ class Trading_Analysis(Tradings):
         df_tradings = df_tradings.sort_values(by='Timestamp')
         win_number = df_tradings.where((df_tradings.loc[:, '开/平']==-1) & (df_tradings.loc[:, '平仓盈亏']>0)).dropna(how='all').loc[:, '手数'].sum()
         close_number = df_tradings.where(df_tradings.loc[:, '开/平']==-1).dropna(how='all').loc[:, '手数'].sum()
-        return win_number/close_number
+        if close_number == 0:
+            return '未平仓'
+        else:
+            return win_number/close_number
 
 if __name__ == '__main__':
     filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
