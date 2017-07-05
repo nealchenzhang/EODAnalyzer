@@ -77,8 +77,9 @@ class Trading_Analysis(Tradings):
         contract_list = self.get_contract_asset()
         df_tradings = pd.DataFrame()
         if not contract_asset in contract_list:
-            print('{} contract is not traded. \
-                  \nPlease re-enter the contract.'.format(contract_asset))
+            pass
+#            print('{} contract is not traded. \
+#                  \nPlease re-enter the contract.'.format(contract_asset))
         else:
             for i in contract_orders:
                 if i.rstrip(self.number) == contract_asset:
@@ -116,26 +117,34 @@ class Trading_Analysis(Tradings):
             return win_number/close_number
 
 if __name__ == '__main__':
-    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
-    x = Trading_Analysis(filepath)
+#    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
+#    x = Trading_Analysis(filepath)
+#    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\远澜保证金监控中心\\保证金监控中心'
+#    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\九泰保证金监控中心\\保证金监控中心'
+    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\爱凡哲保证金监控中心\\保证金监控中心'
+    os.chdir(folderpath)
+    os.listdir(folderpath)
     
+#    x = Trading_Analysis(folderpath)
     # filepath 为文件夹路径
 #    filepath = 'C:\\Users\\Aian Fund\\Desktop\\杨老师5-25至6-9结算账单(1)\\5-25至6-9结算账单'
 #    os.chdir(filepath)
-#    filelist = os.listdir(filepath)
-#    trading_contract = []
-#    for i in filelist:
-#        a = Trading_Analysis(filepath+'\\'+i)
-#        trading_contract.extend(a.get_contract_asset_list())
-#    
+    filelist = os.listdir(folderpath)
+    trading_asset = []
+    for i in filelist:
+        a = Trading_Analysis(folderpath+'\\'+i)
+        trading_asset.extend(a.get_contract_asset())
+    
 #    trading_analysis = {}
-#    for i in list(set(trading_contract)):
-#        trading = pd.DataFrame()
-#        for j in filelist:
-#            tmp = pd.DataFrame()
-#            a = Trading_Analysis(filepath+'\\'+j)
+    for i in list(set(trading_asset)):
+        trading = pd.DataFrame()
+        for j in filelist:
+            tmp = pd.DataFrame()
+            a = Trading_Analysis(folderpath+'\\'+j)
 #            print(j)
-#            tmp = a.tradings(i.rstrip(a.number))
-#            trading = trading.append(tmp)
-#        trading.to_excel('{}.xlsx'.format(i))
+            tmp = a.tradings(i)
+            trading = trading.append(tmp)
+#        trading.to_excel('C:\\Users\\Aian Fund\\Desktop\\九泰保证金监控中心\\{}.xlsx'.format(i))
+        print(i, trading['平仓盈亏'].sum(), a.win_rate(trading), trading['手数'].sum())
+        
 #        trading_analysis = trading_analysis.update(contract= i, win_rate=a.win_rate(trading))
