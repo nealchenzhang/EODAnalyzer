@@ -81,8 +81,9 @@ class Balance(EOD_Analysis):
     '''
     def __init__(self, filepath):
         EOD_Analysis.__init__(self, filepath)
-
+        
         df_settlementfile = pd.read_excel(self.filepath, u'客户交易结算日报', header=None)
+        #df_settlementfile = pd.read_excel(self.filepath, u'客户交易结算月报', header=None)
         tmp = self.fetch_table(df_settlementfile, u'期货期权账户资金状况')
         dic = {'Beging_Bal': tmp.loc[u'上日结存'].iloc[1],
                'Cash_Movement': tmp.loc[u'当日存取合计'].iloc[1],
@@ -110,6 +111,8 @@ class Tradings(EOD_Analysis):
         df_TradingOrders.loc[:, u'平仓盈亏'] = df_TradingOrders.loc[:, u'平仓盈亏'].replace(u'--', np.nan)
         df_TradingOrders.loc[:, [u'实际成交日期', u'成交时间']] = \
         df_TradingOrders.loc[:, [u'实际成交日期', u'成交时间']].astype(str)
+        
+#        df_TradingOrders = df_TradingOrders.set_index('合约')
     
         setattr(self, 'Trading_Orders', df_TradingOrders)
     
@@ -122,6 +125,7 @@ class Positions(EOD_Analysis):
         
         df_Positions = pd.DataFrame()
         tmp = pd.read_excel(self.filepath, u'客户交易结算日报', header=None)
+        #tmp = pd.read_excel(self.filepath, u'客户交易结算月报', header=None)
         try:
             df_Positions = self.fetch_table(tmp, u'期货持仓汇总')
             if df_Positions.index[-1] == u'合计':
@@ -157,7 +161,9 @@ if __name__ == '__main__':
 #    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
     
 #    filepath = 'C:\\Users\\Aian Fund\\Desktop\\杨老师5-25至6-9结算账单(1)\\5-25至6-9结算账单'
-    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\九泰保证金监控中心\\保证金监控中心'
+#    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\测试\\保证金监控中心'
+
+    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\程序化\\祥泽6号\\保证金监控中心'
     os.chdir(folderpath)
     os.listdir(folderpath)
 #    x = EOD_Analysis(filepath)
@@ -191,6 +197,10 @@ if __name__ == '__main__':
                                'Margin to Equity': Margin2Equity,
                                'Realized G/L': Realized_GL})
     df_Balance.index = Bal_index
+    
+    df_Balance.plot(x=df_Balance.index, y='Margin to Equity')
+    df_Balance.plot(x=df_Balance.index, y='Realized G/L')
+    df_Balance.plot(x=df_Balance.index, y='Ending Balance')
 
 #    Assetmin = []
 #    Assetmax = []

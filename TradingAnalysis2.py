@@ -94,6 +94,7 @@ class Trading_Analysis(Tradings):
                 else:
                     df_tradings = df_tradings.append(tmp)
             ### 有些期货公司此处实际成交日期有误 待修改
+            if df_tradings.loc[:, '成交时间']
             df_tradings['Timestamp'] = df_tradings.loc[:, '实际成交日期'] + \
                        'T'+  df_tradings.loc[:, '成交时间'] + '.000Z'
             df_tradings = df_tradings.reset_index()
@@ -117,36 +118,34 @@ class Trading_Analysis(Tradings):
             return win_number/close_number
 
 if __name__ == '__main__':
-#    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
-#    x = Trading_Analysis(filepath)
-#    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\远澜保证金监控中心\\保证金监控中心'
-   
-    def fortnight(advisor, folderpath):
-        
-        filelist = os.listdir(folderpath)
-        trading_asset = []
-        for i in filelist:
-            a = Trading_Analysis(folderpath+'\\'+i)
-            trading_asset.extend(a.get_contract_asset())
-        
-    #    trading_analysis = {}
-        for i in list(set(trading_asset)):
-            trading = pd.DataFrame()
-            for j in filelist:
-                tmp = pd.DataFrame()
-                a = Trading_Analysis(folderpath+'\\'+j)
-                tmp = a.tradings(i)
-                trading = trading.append(tmp)
-            trading.to_excel(folderpath.split('结算单')[0]+'/结算单/'+advisor+'/'+'{}.xlsx'.format(i))
-            print(i, trading['平仓盈亏'].sum(), a.win_rate(trading), trading['手数'].sum())
-            
-    #        trading_analysis = trading_analysis.update(contract= i, win_rate=a.win_rate(trading))
-    
-    Advisors = [#'爱凡哲', '爱晖1号', '祥泽6号', '方宜', '蓝天9号', 
-                '祥寅1号']
-    for i in Advisors:
-        print(i)
-        folderpath = 'C:/Users/Aian Fund/Desktop/结算单/'+ str(i)+'/保证金监控中心'
-        os.chdir(folderpath)
-        os.listdir(folderpath)
-        fortnight(i, folderpath)
+    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-19.xls'
+    x = Trading_Analysis(filepath)
+##    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\远澜保证金监控中心\\保证金监控中心'
+##    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\九泰保证金监控中心\\保证金监控中心'
+#    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\蓝天保证金监控中心\\保证金监控中心'
+#    os.chdir(folderpath)
+#    os.listdir(folderpath)
+#    
+##    x = Trading_Analysis(folderpath)
+#    # filepath 为文件夹路径
+##    filepath = 'C:\\Users\\Aian Fund\\Desktop\\杨老师5-25至6-9结算账单(1)\\5-25至6-9结算账单'
+##    os.chdir(filepath)
+#    filelist = os.listdir(folderpath)
+#    trading_asset = []
+#    for i in filelist:
+#        a = Trading_Analysis(folderpath+'\\'+i)
+#        trading_asset.extend(a.get_contract_asset())
+#    
+##    trading_analysis = {}
+#    for i in list(set(trading_asset)):
+#        trading = pd.DataFrame()
+#        for j in filelist:
+#            tmp = pd.DataFrame()
+#            a = Trading_Analysis(folderpath+'\\'+j)
+##            print(j)
+#            tmp = a.tradings(i)
+#            trading = trading.append(tmp)
+##        trading.to_excel('C:\\Users\\Aian Fund\\Desktop\\明曦保证金监控中心\\{}.xlsx'.format(i))
+#        print(i, trading['平仓盈亏'].sum(), a.win_rate(trading), trading['手数'].sum())
+#        
+##        trading_analysis = trading_analysis.update(contract= i, win_rate=a.win_rate(trading))
