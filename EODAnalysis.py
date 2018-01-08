@@ -88,6 +88,7 @@ class Balance(EOD_Analysis):
         dic = {'Beging_Bal': tmp.loc[u'上日结存'].iloc[1],
                'Cash_Movement': tmp.loc[u'当日存取合计'].iloc[1],
                'Ending_Bal': tmp.loc[u'上日结存'].iloc[6],
+#                'Realized_GL': tmp.loc[u'当日盈亏'].iloc[1],
                'Realized_GL': tmp.loc[u'平仓盈亏'].iloc[1],
                'Margin': tmp.loc[u'当日结存'].iloc[6],
                'Margin2Equity': float(tmp.iloc[7,6][:tmp.iloc[7,6].find('%')]),
@@ -104,7 +105,29 @@ class Tradings(EOD_Analysis):
         
         df_TradingOrders = pd.DataFrame()
         tmp = pd.read_excel(self.filepath, u'成交明细', header=None)
-        df_TradingOrders = self.fetch_table(tmp, u'成交明细')
+        try:
+            df_TradingOrders = self.fetch_table(tmp, u'成交明细')
+            pass
+#            print('Error')
+        except:
+#            print('True')
+#            print(tmp.columns)
+            tmp.drop([0], axis=1, inplace=True)
+#            tmp['Unnamed: 1'].apply(lambda x: x.upper() if x[0].isalpha)
+            a = tmp.set_index([1])
+            table_start = a.index.get_loc('合约')
+            table_end = a.index.get_loc('合计')
+            df_TradingOrders = a.iloc[table_start+1:table_end+1]
+            df_TradingOrders.columns = ['成交序号', '成交时间', '买/卖',
+                                        '投机/套保','成交价', '手数',
+                                        '成交额','开/平', '手续费',
+                                        '平仓盈亏', '资金账户报单编号',
+                                       '实际成交日期']
+            df_TradingOrders.index = [i.upper() for i in df_TradingOrders.index]
+            df_TradingOrders.loc[:, u'实际成交日期'] = df_TradingOrders.loc[:, u'实际成交日期'].apply(pd.to_datetime)
+#==============================================================================
+#             
+#==============================================================================
         if df_TradingOrders.index[-1] == u'合计':
             df_TradingOrders = df_TradingOrders.drop(u'合计', axis=0)
         
@@ -156,14 +179,12 @@ class Asset_Summary(EOD_Analysis):
         setattr(self, 'Asset_Summary', df_Asset_Summary)
 
 if __name__ == '__main__':
- #   filepath = r'C:\\Users\\Aian Fund\\Desktop\\御澜保证金监控中心\\.xls'.format('2017-04')
-#    filepath = '/media/nealcz/Data/Neal/EODAnalyzer/御澜保证金监控中心'
-#    filepath = r'D:\\Neal\\EODAnalyzer\\保证金监控中心\\006580022168_2017-04-10.xls'
-    
-#    filepath = 'C:\\Users\\Aian Fund\\Desktop\\杨老师5-25至6-9结算账单(1)\\5-25至6-9结算账单'
-#    folderpath = 'C:\\Users\\Aian Fund\\Desktop\\测试\\保证金监控中心'
-
     folderpath = 'C:\\Users\\Aian Fund\\Desktop\\程序化\\祥泽6号\\保证金监控中心'
+    folderpath = 'C:/Users/Aian Fund/Desktop/结算单/椰海/保证金监控中心'
+    folderpath = 'C:/Users/Aian Fund/Desktop/李岩-杨斯同'
+#    folderpath = 'C:/Users/Aian Fund/Desktop/结算单/元鼎2/保证金监控中心'
+#    folderpath = 'C:/Users/Aian Fund/Desktop/陈晓丹'
+    folderpath = 'C:/Users/Aian Fund/Desktop/yst'
     os.chdir(folderpath)
     os.listdir(folderpath)
 #    x = EOD_Analysis(filepath)
@@ -198,10 +219,16 @@ if __name__ == '__main__':
                                'Realized G/L': Realized_GL})
     df_Balance.index = Bal_index
     
-    df_Balance.plot(x=df_Balance.index, y='Margin to Equity')
+    df_Balance.plot(x=df_Balance.index, y='Margin to Equity',)
     df_Balance.plot(x=df_Balance.index, y='Realized G/L')
+    
     df_Balance.plot(x=df_Balance.index, y='Ending Balance')
-
+    
+    df_Balance['return'] = (df_Balance['Realized G/L'] / df_Balance['Ending Balance'].shift(1))
+              
+#    df_Balance['cum_return'] = np.cumprod((df_Balance['return']+1)[1:])
+#    df_Balance['cum_return'].plot()
+    df_Balance.to_excel('单账户.xlsx')
 #    Assetmin = []
 #    Assetmax = []
 #    for i in os.listdir(folderpath):
