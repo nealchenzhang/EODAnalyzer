@@ -42,6 +42,7 @@ class EOD_Analysis(object):
                 期货成交明细
                 期货持仓汇总
                 成交明细
+                成交汇总（融航）核算信息
         
         Output:
             return df_table for particular table_name
@@ -104,7 +105,11 @@ class Tradings(EOD_Analysis):
         EOD_Analysis.__init__(self, filepath)
         
         df_TradingOrders = pd.DataFrame()
-        tmp = pd.read_excel(self.filepath, u'成交明细', header=None)
+        try:
+            tmp = pd.read_excel(self.filepath, u'成交明细', header=None)
+            pass
+        except:
+            tmp = pd.read_excel(self.filepath, u'成交汇总', header=None)
         try:
             df_TradingOrders = self.fetch_table(tmp, u'成交明细')
             pass
