@@ -150,8 +150,14 @@ class Trading_Analysis(Tradings):
     
     def win_rate(self, df_tradings):
         df_tradings = df_tradings.sort_values(by='Timestamp')
-        win_number = df_tradings.where((df_tradings.loc[:, '开/平']==-1) & (df_tradings.loc[:, '平仓盈亏']>0)).dropna(how='all').loc[:, '手数'].sum()
-        close_number = df_tradings.where(df_tradings.loc[:, '开/平']==-1).dropna(how='all').loc[:, '手数'].sum()
+    
+        if 'index' in df_tradings.columns:
+            df_tradings.drop('index', axis=1, inplace=True)
+        else:
+            pass
+        df_tradings.reset_index(inplace=True, drop=True)
+        win_number = df_tradings.loc[:, '手数'].where((df_tradings.loc[:, '开/平']==-1) & (df_tradings.loc[:, '平仓盈亏']>0)).dropna(how='all').sum()
+        close_number = df_tradings.loc[:, '手数'].where(df_tradings.loc[:, '开/平']==-1).dropna(how='all').sum()
         if close_number == 0:
             return '未平仓'
         else:
