@@ -32,7 +32,7 @@ class EOD_Analysis(object):
     def fetch_table(self, df_pdEOD, table_name):
         '''
         Input:
-            df_pdEOD is pandas DataFrame for the 客户交易结算日报表格/成交明细
+            df_pdEOD is pandas DataFrame for the 客户交易结算日报表格/成交明细/成交汇总（融航）核算信息
             table_name include:
                 基本资料
                 期货期权账户资金状况
@@ -42,8 +42,7 @@ class EOD_Analysis(object):
                 期货成交明细
                 期货持仓汇总
                 成交明细
-                成交汇总（融航）核算信息
-        
+                        
         Output:
             return df_table for particular table_name
         
